@@ -50,14 +50,30 @@ fs.cpSync(templateDir, destDir, { recursive: true });
 fs.renameSync(path.join(destDir, "_env"), path.join(destDir, ".env"));
 
 // Add example project files if option set
-const noExample = process.argv.includes("--no-example");
+let noExample = process.argv.includes("--no-example");
+if (!noExample) {
+    const answer = await ask("Dou you want an example project? (yes): ");
+    if (answer) {
+        noExample = answer.toLowerCase() == "yes" ? false : true;
+    } else {
+        noExample = false;
+    }
+}
 if (!noExample) {
     const exampleDir = path.join(__dirname, "example");
     fs.cpSync(exampleDir, destDir, { recursive: true, force: true });
 }
 
 // npm install
-const noInstall = process.argv.includes("--no-install");
+let noInstall = process.argv.includes("--no-install");
+if (!noInstall) {
+    const answer = await ask("Dou you want an automatic 'npm install'? (yes): ");
+    if (answer) {
+        noInstall = answer.toLowerCase() == "yes" ? false : true;
+    } else {
+        noInstall = false;
+    }
+}
 
 if (!noInstall) {
     const install = spawnSync("npm", ["install"], { cwd: destDir, stdio: "inherit", shell: true });
