@@ -1,0 +1,8 @@
+{
+  "name": "create-workbench",
+  "version": "1.0.0",
+  "type": "module",
+  "bin": {
+    "create-workbench": "index.js"
+  }
+}
