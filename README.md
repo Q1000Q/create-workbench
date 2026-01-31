@@ -11,12 +11,12 @@ A scaffolding tool for quickly creating new projects with the Workbench stack - 
 - **TypeScript** - Type safe development
 
 ## Usage
-
+ 
 ```bash
-npx create-workbench [project-name]
+npm create workbench
 ```
-
-If no project name is provided, it defaults to `workbench-app`.
+This will fetch script from npm registry and run it for you.
+You can also use `bun create workbench` if you prefere bun.
 
 ## What it does
 
@@ -36,5 +36,6 @@ After creating your project:
 cd [project-name]
 npm run dev
 ```
+If you installed Workbench with bun use `bun run dev` instead.
 
 Visit `http://localhost:5173` to see your app.
