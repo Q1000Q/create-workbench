@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import fs from "fs";
+import fs, { readFileSync } from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import { spawnSync } from "child_process";
@@ -63,6 +63,10 @@ if (!noExample) {
     const exampleDir = path.join(__dirname, "example");
     fs.cpSync(exampleDir, destDir, { recursive: true, force: true });
 }
+
+// Replace project name
+const packageContent = fs.readFileSync(path.join(destDir, "package.json"), "utf-8").replace("{{project-name}}", path.basename(destDir));
+fs.writeFileSync(path.join(destDir, "package.json"), packageContent);
 
 // npm install
 let noInstall = process.argv.includes("--no-install");
