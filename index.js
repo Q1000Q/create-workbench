@@ -70,9 +70,12 @@ let currentPM = "npm";
 if (ua.startsWith("pnpm/")) currentPM = "pnpm";
 if (ua.startsWith("bun/")) currentPM = "bun";
 
+// Check if running with Bun runtime
+if (typeof Bun !== 'undefined') currentPM = "bun";
+
 // Replace package.json with proper PM one
-if (currentPM == "pnpm") fs.cpSync(path.join(process.cwd(), "template-pnpm"), destDir, { recursive: true, force: true });
-if (currentPM == "bun") fs.cpSync(path.join(process.cwd(), "template-bun"), destDir, { recursive: true, force: true });
+if (currentPM == "pnpm") fs.cpSync(path.join(__dirname, "template-pnpm"), destDir, { recursive: true, force: true });
+if (currentPM == "bun") fs.cpSync(path.join(__dirname, "template-bun"), destDir, { recursive: true, force: true });
 
 // Replace project name
 const packageContent = fs.readFileSync(path.join(destDir, "package.json"), "utf-8").replace("{{project-name}}", path.basename(destDir));
@@ -92,7 +95,7 @@ if (!noInstall) {
 if (!noInstall) {
     const install = spawnSync(currentPM, ["install"], { cwd: destDir, stdio: "inherit", shell: true });
     if (install.error || install.status !== 0) {
-        console.error("npm install failed!")
+        console.error("Dependencies install failed!")
         process.exit(1);
     }
     console.log("Dependencies installed");
