@@ -37,11 +37,6 @@ const templateDir = path.join(__dirname, "template");
 
 const destDir = path.resolve(process.cwd(), targetDir);
 
-if (fs.existsSync(destDir)) {
-    console.error(`Directory '${targetDir}' already exists`);
-    process.exit(1);
-}
-
 fs.mkdirSync(destDir, { recursive: true });
 
 fs.cpSync(templateDir, destDir, { recursive: true });
