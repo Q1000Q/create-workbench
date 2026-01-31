@@ -27,10 +27,9 @@ const __dirname = path.dirname(__filename);
 
 let targetDir = process.argv[2];
 if (!targetDir) {
-    targetDir = await ask("Target directory: ");
+    targetDir = await ask("Target directory (my-workbench-app): ");
     if (!targetDir) {
-        console.error("Target directory is required");
-        process.exit(1);
+        targetDir = "my-workbench-app";
     }
 }
 
@@ -50,29 +49,44 @@ fs.cpSync(templateDir, destDir, { recursive: true });
 // Rename _env to .env
 fs.renameSync(path.join(destDir, "_env"), path.join(destDir, ".env"));
 
-// npm install
-const install = spawnSync("npm", ["install"], { cwd: destDir, stdio: "inherit", shell: true });
-if (install.error || install.status !== 0) {
-    console.error("npm install failed!")
-    process.exit(1);
+// Add example project files if option set
+const noExample = process.argv.includes("--no-example");
+if (!noExample) {
+    const exampleDir = path.join(__dirname, "example");
+    fs.cpSync(exampleDir, destDir, { recursive: true, force: true });
 }
-console.log("Dependencies installed");
+
+// npm install
+const noInstall = process.argv.includes("--no-install");
+
+if (!noInstall) {
+    const install = spawnSync("npm", ["install"], { cwd: destDir, stdio: "inherit", shell: true });
+    if (install.error || install.status !== 0) {
+        console.error("npm install failed!")
+        process.exit(1);
+    }
+    console.log("Dependencies installed");
+}
 
 // Prisma migrate
-const migrate = spawnSync("npm", ["run", "migrate"], { cwd: destDir, stdio: "inherit", shell: true });
-if (migrate.error || migrate.status !== 0) {
-    console.error("npm install failed!")
-    process.exit(1);
+if (!noExample) {
+    const migrate = spawnSync("npm", ["run", "migrate"], { cwd: destDir, stdio: "inherit", shell: true });
+    if (migrate.error || migrate.status !== 0) {
+        console.error("npm install failed!")
+        process.exit(1);
+    }
+    console.log("Prisma migration successful");
 }
-console.log("Prisma migration successful");
 
 // Prisma generate
-const generate = spawnSync("npm", ["run", "generate"], { cwd: destDir, stdio: "inherit", shell: true });
-if (generate.error || generate.status !== 0) {
-    console.error("npm install failed!")
-    process.exit(1);
+if (!noExample) {
+    const generate = spawnSync("npm", ["run", "generate"], { cwd: destDir, stdio: "inherit", shell: true });
+    if (generate.error || generate.status !== 0) {
+        console.error("npm install failed!")
+        process.exit(1);
+    }
+    console.log("Prisma generation successful");
 }
-console.log("Prisma generation successful");
 
 
 console.log("All done!");

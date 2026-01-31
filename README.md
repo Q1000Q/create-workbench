@@ -1,6 +1,6 @@
 # create-workbench
 
-A scaffolding tool for quickly creating new projects with the Workbench stack - my little funny technology stack, taht is perfect for small, simple projects taht need frontend, backend and DB with everything in one place.
+A scaffolding tool for quickly creating new projects with the Workbench stack - my little funny technology stack, that is perfect for small, simple projects taht need frontend, backend and DB with everything in one place.
 
 ## Stack
 
