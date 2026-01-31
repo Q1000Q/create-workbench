@@ -64,6 +64,16 @@ if (!noExample) {
     fs.cpSync(exampleDir, destDir, { recursive: true, force: true });
 }
 
+// Detect package manager
+const ua = process.env.npm_config_user_agent || "";
+let currentPM = "npm";
+if (ua.startsWith("pnpm/")) currentPM = "pnpm";
+if (ua.startsWith("bun/")) currentPM = "bun";
+
+// Replace package.json with proper PM one
+if (currentPM == "pnpm") fs.cpSync(path.join(process.cwd(), "template-pnpm"), destDir, { recursive: true, force: true });
+if (currentPM == "bun") fs.cpSync(path.join(process.cwd(), "template-bun"), destDir, { recursive: true, force: true });
+
 // Replace project name
 const packageContent = fs.readFileSync(path.join(destDir, "package.json"), "utf-8").replace("{{project-name}}", path.basename(destDir));
 fs.writeFileSync(path.join(destDir, "package.json"), packageContent);
@@ -71,7 +81,7 @@ fs.writeFileSync(path.join(destDir, "package.json"), packageContent);
 // npm install
 let noInstall = process.argv.includes("--no-install");
 if (!noInstall) {
-    const answer = await ask("Dou you want an automatic 'npm install'? (yes): ");
+    const answer = await ask("Dou you want an automatic packages install? (yes): ");
     if (answer) {
         noInstall = answer.toLowerCase() == "yes" ? false : true;
     } else {
@@ -80,17 +90,32 @@ if (!noInstall) {
 }
 
 if (!noInstall) {
-    const install = spawnSync("npm", ["install"], { cwd: destDir, stdio: "inherit", shell: true });
+    const install = spawnSync(currentPM, ["install"], { cwd: destDir, stdio: "inherit", shell: true });
     if (install.error || install.status !== 0) {
         console.error("npm install failed!")
         process.exit(1);
     }
     console.log("Dependencies installed");
+
+    // Approve and rebuild better-sqlite3 for pnpm
+    if (currentPM === "pnpm") {
+        console.log("Approving build scripts...");
+        console.log("If prompted SELECT ALL AND ACCEPT if you don't know what you are doing");
+        spawnSync(currentPM, ["approve-builds"], { cwd: destDir, stdio: "inherit", shell: true });
+        
+        console.log("Rebuilding packages...");
+        const rebuild = spawnSync(currentPM, ["rebuild"], { cwd: destDir, stdio: "inherit", shell: true });
+        if (rebuild.error || rebuild.status !== 0) {
+            console.error("Failed to rebuild packages!");
+            process.exit(1);
+        }
+        console.log("Packages rebuilt successfully");
+    }
 }
 
 // Prisma migrate
 if (!noExample) {
-    const migrate = spawnSync("npm", ["run", "migrate"], { cwd: destDir, stdio: "inherit", shell: true });
+    const migrate = spawnSync(currentPM, ["run", "migrate"], { cwd: destDir, stdio: "inherit", shell: true });
     if (migrate.error || migrate.status !== 0) {
         console.error("npm install failed!")
         process.exit(1);
@@ -100,7 +125,7 @@ if (!noExample) {
 
 // Prisma generate
 if (!noExample) {
-    const generate = spawnSync("npm", ["run", "generate"], { cwd: destDir, stdio: "inherit", shell: true });
+    const generate = spawnSync(currentPM, ["run", "generate"], { cwd: destDir, stdio: "inherit", shell: true });
     if (generate.error || generate.status !== 0) {
         console.error("npm install failed!")
         process.exit(1);
@@ -112,4 +137,4 @@ if (!noExample) {
 console.log("All done!");
 console.log("To start the app:");
 console.log(`cd ${targetDir}`);
-console.log("npm run dev");
+console.log(`${currentPM} run dev`);

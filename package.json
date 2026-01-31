@@ -3,6 +3,11 @@
   "version": "1.0.0",
   "type": "module",
   "bin": {
-    "create-workbench": "index.js"
+    "create-workbench": "./index.js"
+  },
+  "files": ["index.js", "template/", "example/", "template-pnpm/", "template-bun/"],
+  "preferGlobal": true,
+  "engines": {
+    "node": ">=18"
   }
 }
