@@ -4,13 +4,35 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import { spawnSync } from "child_process";
+import readline from "readline";
+
+const ask = (question) => {
+    const rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout
+    });
+
+    return new Promise((resolve) => {
+        rl.question(question, (answer) => {
+            rl.close();
+            resolve(answer.trim());
+        })
+    })
+}
 
 console.log("Creating an Workbench app...");
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const targetDir = process.argv[2] || "workbench-app";
+let targetDir = process.argv[2];
+if (!targetDir) {
+    targetDir = await ask("Target directory: ");
+    if (!targetDir) {
+        console.error("Target directory is required");
+        process.exit(1);
+    }
+}
 
 const templateDir = path.join(__dirname, "template");
 
