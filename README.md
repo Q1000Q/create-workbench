@@ -39,3 +39,7 @@ npm run dev
 If you installed Workbench with bun use `bun run dev` instead.
 
 Visit `http://localhost:5173` to see your app.
+
+## Credits
+
+I want to credit awesome people that created: React Router, Prisma and Vite, on which my stack is based on.
